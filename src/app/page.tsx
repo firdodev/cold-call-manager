@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -32,7 +32,7 @@ const statusConfig = {
 };
 
 export default function Home() {
-  const [excelData, setExcelData] = useState<any[]>([]);
+  const [excelData, setExcelData] = useState<Record<string, unknown>[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [nameColumn, setNameColumn] = useState<string>('');
   const [phoneColumn, setPhoneColumn] = useState<string>('');
@@ -52,8 +52,8 @@ export default function Home() {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
         if (jsonData.length > 0) {
-          setExcelData(jsonData);
-          setColumns(Object.keys(jsonData[0] as object));
+          setExcelData(jsonData as Record<string, unknown>[]);
+          setColumns(Object.keys(jsonData[0] as Record<string, unknown>));
           setStep('configure');
         }
       };
@@ -74,8 +74,8 @@ export default function Home() {
     if (nameColumn && phoneColumn) {
       const processedLeads: Lead[] = excelData.map((row, index) => ({
         id: index + 1,
-        name: row[nameColumn] || 'Unknown',
-        phone: row[phoneColumn] || 'No Phone',
+        name: String(row[nameColumn] || 'Unknown'),
+        phone: String(row[phoneColumn] || 'No Phone'),
         status: 'pending'
       }));
       setLeads(processedLeads);
@@ -135,7 +135,7 @@ export default function Home() {
     const ws = XLSX.utils.json_to_sheet(exportData);
 
     // Add styling information (this will be handled by Excel when opened)
-    const range = XLSX.utils.decode_range(ws['!ref']!);
+    // const range = XLSX.utils.decode_range(ws['!ref']!);
 
     // Add the worksheet to workbook
     XLSX.utils.book_append_sheet(wb, ws, 'Cold Call Results');
@@ -178,7 +178,7 @@ export default function Home() {
                   <Upload className='h-16 w-16 mx-auto mb-6 text-white/60' />
                 </div>
                 {isDragActive ? (
-                  <p className='text-white text-lg font-medium'>Drop it like it's hot! 🔥</p>
+                  <p className='text-white text-lg font-medium'>Drop it like it&apos;s hot! 🔥</p>
                 ) : (
                   <div className='space-y-2'>
                     <p className='text-white text-lg font-medium'>Drag & drop your Excel file here</p>
@@ -261,7 +261,7 @@ export default function Home() {
                         <TableRow key={index} className='border-white/10 hover:bg-white/5'>
                           {columns.map(column => (
                             <TableCell key={column} className='text-white/90'>
-                              {row[column]}
+                              {String(row[column] || '')}
                             </TableCell>
                           ))}
                         </TableRow>
@@ -335,7 +335,7 @@ export default function Home() {
               </div>
             </CardTitle>
             <CardDescription className='text-white/70 text-base'>
-              Lead {currentLeadIndex + 1} of {leads.length} • {getCompletionPercentage()}% Complete • You're doing
+              Lead {currentLeadIndex + 1} of {leads.length} • {getCompletionPercentage()}% Complete • You&apos;re doing
               amazing! 🚀
             </CardDescription>
           </CardHeader>
